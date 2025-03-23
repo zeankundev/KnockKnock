@@ -59,6 +59,8 @@ export default function ModalScreen() {
         const response = await result.response;
         const aiText = response.text();
 
+        console.log(`AI said: ${aiText}`)
+
         // Replace typing indicator with actual message
         setMessages(prev => prev.slice(0, -1).concat({
           type: 'robot',

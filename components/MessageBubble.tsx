@@ -30,24 +30,11 @@ export default function MessageBubble(props: BubbleProps, viewProps: ViewProps) 
                                 ? props.message
                                 : props.message.trim().split(' ').reduce((acc, word) => {
                                     const lastLine = acc.split('\n').pop() || '';
-                                    const trimmedWord: string = word.trim();
+                                    const trimmedWord = word.trim();
                                     if (!trimmedWord) return acc;
-                                    
-                                    if (lastLine.length === 0) {
-                                        if (trimmedWord.length > MESSAGE_THRESHOLD) {
-                                            return (trimmedWord.match(new RegExp(`.{1,${MESSAGE_THRESHOLD}}`, 'g')) ?? []).join('\n');
-                                        }
-                                        return trimmedWord;
-                                    }
-                                    
-                                    if (lastLine.length + trimmedWord.length + 1 > MESSAGE_THRESHOLD) {
-                                        if (trimmedWord.length > MESSAGE_THRESHOLD) {
-                                            return `${acc}\n${(trimmedWord.match(new RegExp(`.{1,${MESSAGE_THRESHOLD}}`, 'g')) ?? []).join('\n')}`;
-                                        }
-                                        return `${acc}\n${trimmedWord}`;
-                                    }
-                                    
-                                    return `${acc} ${trimmedWord}`;
+                                    return lastLine.length + trimmedWord.length + 1 > MESSAGE_THRESHOLD - 5
+                                        ? `${acc}${acc ? '\n' : ''}${trimmedWord}`
+                                        : acc.length === 0 ? trimmedWord : `${acc} ${trimmedWord}`;
                                 }, '')
                             }
                         </Text>
