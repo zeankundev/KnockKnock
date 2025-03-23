@@ -1,5 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
-import { Platform, ScrollView, StyleSheet } from 'react-native';
+import { Image, Platform, ScrollView, StyleSheet } from 'react-native';
 
 import EditScreenInfo from '@/components/EditScreenInfo';
 import { Text, View } from '@/components/Themed';
@@ -33,10 +33,20 @@ export default function ModalScreen() {
 
   return (
     <View style={styles.container}>
-      <View>
+      <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()}>
           <SvgXml xml={VectorGraphics.backButton} width={54} height={54} />
         </TouchableOpacity>
+        <View>
+          <Image source={{
+            uri: 'https://cdn.discordapp.com/avatars/793983601288544286/bb5684e2e246ce452aaebb584d9a7c91'
+            }} 
+            width={40} 
+            height={40} 
+            style={styles.imageContainer}
+          />
+        </View>
+        <Text style={{...styles.title, marginLeft: 10}}>Asaba Harumasa</Text>
       </View>
       <ScrollView 
         ref={scrollViewRef}
@@ -100,6 +110,15 @@ const styles = StyleSheet.create({
     marginLeft: 'auto', // This will push the button to the right
     display: 'flex',
     alignSelf:'flex-start',
+    borderRadius: 50
+  },
+  header: {
+    display: 'flex',
+    alignItems: 'center',
+    flexDirection: 'row'
+  },
+  imageContainer: {
+    marginLeft: 20,
     borderRadius: 50
   },
   footer: {
