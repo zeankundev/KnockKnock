@@ -34,3 +34,6 @@ yarn-error.*
 
 # typescript
 *.tsbuildinfo
+
+# Miscellaneous AI stuff 
+components/config/AISettings.ts
