@@ -1,14 +1,40 @@
-import { StyleSheet } from 'react-native';
+import { Image, Platform, StyleSheet } from 'react-native';
 
 import EditScreenInfo from '@/components/EditScreenInfo';
 import { Text, View } from '@/components/Themed';
+import Colors from '@/constants/Colors';
+import * as Device from 'expo-device';
+import { SvgXml } from 'react-native-svg';
+import VectorGraphics from '@/constants/VectorGraphics';
 
 export default function TabTwoScreen() {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Tab Two</Text>
-      <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
-      <EditScreenInfo path="app/(tabs)/two.tsx" />
+      <Image
+        source={require('../../assets/images/splash-icon.png')} 
+        style={{ width: 128, height: 128 }}
+      />
+      <Text style={styles.title}>Knock Knock</Text>
+      <Text style={styles.miniText}>hobby-oriented messaging app style. not production-ready yet, at least for now :){'\n'}</Text>
+      <View style={styles.copyright}>
+        <Text style={{fontFamily: 'ZZZWebFont'}}>made with ❤️ by</Text>
+        <SvgXml xml={VectorGraphics.zeanKunDevLogomark} width={140} height={20}></SvgXml>
+        <Text style={{fontFamily: 'ZZZWebFont'}}>© {new Date().getFullYear()}</Text>
+      </View>
+      <View style={styles.separator} />
+      <Text style={styles.title}>Debug/extra info</Text>
+      <Text style={styles.miniText}>
+        Brand: {Device.brand}{'\n'}
+        Design name: {Device.designName}{'\n'}
+        Device name: {Device.deviceName}{'\n'}
+        Device type: {Device.deviceType}{'\n'}
+        Manufacturer: {Device.manufacturer}{'\n'}
+        Model ID: {Device.modelId}{'\n'}
+        Device year class: {Device.deviceYearClass}{'\n'}
+        OS name: {Platform.OS === 'android' ? 'Android' : 'iOS'}{'\n'}
+        Build fingerprint: {Device.osBuildFingerprint}{'\n'}
+        OS version: {Device.osVersion}{'\n'}
+      </Text>
     </View>
   );
 }
@@ -21,11 +47,23 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 20,
-    fontWeight: 'bold',
+    fontFamily: 'ZZZWebFont'
+  },
+  copyright: {
+    display: 'flex',
+    flexDirection: 'row'
+  },
+  miniText: {
+    maxWidth: 300,
+    fontSize: 16,
+    textAlign: 'center',
+    fontFamily: 'Menlo'
   },
   separator: {
     marginVertical: 30,
     height: 1,
+    borderColor: Colors.default.secondaryBackground,
+    borderTopWidth: 2,
     width: '80%',
   },
 });

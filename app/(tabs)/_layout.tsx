@@ -52,7 +52,7 @@ export default function TabLayout() {
         options={{
           title: 'Tab Two',
           headerShown: false,
-          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
+          tabBarIcon: ({ color }) => <TabBarIcon name="info" color={color} />,
         }}
       />
     </Tabs>

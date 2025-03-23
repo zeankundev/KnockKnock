@@ -1,4 +1,4 @@
-import { Image, StyleSheet, TouchableOpacity } from 'react-native';
+import { Image, RefreshControl, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
 
 import { Link, router, Tabs } from 'expo-router';
 import { Pressable } from 'react-native';
@@ -39,26 +39,40 @@ export default function TabOneScreen() {
       <View>
         <TextField placeholder='Search for anything (broken atm)'></TextField>
       </View>
-      {contacts?.map((contact, index) => (
-        <TouchableOpacity 
-          style={styles.contactInfo} 
-          onPress={() => router.push({ pathname: "/modal", params: { generativeAITag: contact.tag } })}
-          key={index}
-        >
-          <View style={styles.contactInfo}>
-            <Image 
-              source={{ uri: contact.profilePicture }}
-              width={52}
-              height={52}
-              style={{ borderRadius: 100 }}
-            />
-            <View style={styles.nestedContactInfo}>
-              <Text style={styles.title}>{contact.name}</Text>
-              <Text style={styles.subtitle}>Start chatting now...</Text>
+      <ScrollView
+        refreshControl={
+          <RefreshControl
+          refreshing={contacts === null}
+          onRefresh={() => setContacts(null)}
+          />
+        }
+        contentContainerStyle={{ flexGrow: 1, paddingBottom: 100 }}
+        showsVerticalScrollIndicator={true}
+        alwaysBounceVertical={true}
+        scrollEnabled={true}
+        bounces={true}
+      >
+        {contacts?.map((contact, index) => (
+          <TouchableOpacity 
+            style={styles.contactInfo} 
+            onPress={() => router.push({ pathname: "/modal", params: { generativeAITag: contact.tag } })}
+            key={index}
+          >
+            <View style={styles.contactInfo}>
+              <Image 
+                source={{ uri: contact.profilePicture }}
+                width={52}
+                height={52}
+                style={{ borderRadius: 100 }}
+              />
+              <View style={styles.nestedContactInfo}>
+                <Text style={styles.title}>{contact.name}</Text>
+                <Text style={styles.subtitle}>Start chatting now...</Text>
+              </View>
             </View>
-          </View>
-        </TouchableOpacity>
-      ))}
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
     </View>
   );
 }
