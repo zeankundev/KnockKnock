@@ -23,10 +23,9 @@ export default function TabOneScreen() {
   useEffect(() => {
     const loadContacts = async () => {
       try {
-        const response = await fetch(PROD_JSON_URL);
+        const response = await fetch(PROD_JSON_URL, {cache: 'no-cache'});
         if (!response.ok) throw new Error('Network response was not ok');
         const data = await response.json();
-        console.log(data)
         setContacts(data)
       } catch (error) {
         console.error('💥 Error loading contacts:', error);
