@@ -26,17 +26,20 @@ export default function MessageBubble(props: BubbleProps, viewProps: ViewProps) 
                         borderRadius: props.message.includes('\n') || props.message.length > MESSAGE_THRESHOLD ? 20 : 50
                     }}>
                         <Text style={styles.messageBubbleLeftText}>
-                            {props.message.includes('\n')
-                                ? props.message
-                                : props.message.trim().split(' ').reduce((acc, word) => {
-                                    const lastLine = acc.split('\n').pop() || '';
-                                    const trimmedWord = word.trim();
-                                    if (!trimmedWord) return acc;
-                                    return lastLine.length + trimmedWord.length + 1 > MESSAGE_THRESHOLD - 5
-                                        ? `${acc}${acc ? '\n' : ''}${trimmedWord}`
-                                        : acc.length === 0 ? trimmedWord : `${acc} ${trimmedWord}`;
-                                }, '')
-                            }
+                            {(() => {
+                                const processedMessage = props.message.includes('\n')
+                                    ? props.message
+                                    : props.message.trim().split(' ').reduce((acc, word) => {
+                                        const lastLine = acc.split('\n').pop() || '';
+                                        const trimmedWord = word.trim();
+                                        if (!trimmedWord) return acc;
+                                        return lastLine.length + trimmedWord.length + 1 > MESSAGE_THRESHOLD - 5
+                                            ? `${acc}${acc ? '\n' : ''}${trimmedWord}`
+                                            : acc.length === 0 ? trimmedWord : `${acc} ${trimmedWord}`;
+                                    }, '');
+                                console.log('Processed message:', processedMessage);
+                                return processedMessage;
+                            })()}
                         </Text>
                     </View>
                 </View>
@@ -102,7 +105,8 @@ const styles = StyleSheet.create({
         borderRadius: 50,
         backgroundColor: Colors.default.leftBubbleChat,
         paddingLeft: 7,
-        paddingRight: 7
+        paddingRight: 7,
+        maxWidth: 300
     },
     messageBubbleLeftText: {
         color: Colors.default.leftBubbleChatText,
