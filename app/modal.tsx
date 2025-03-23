@@ -15,21 +15,64 @@ import CircularButton from '@/components/CircularButton';
 import { useRef, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import MessageBubble from '@/components/MessageBubble';
+import { GoogleGenerativeAI } from "@google/generative-ai";
+import AISettings from '../components/config/AISettings';
+
+// Add these type definitions
+type MessageType = {
+  type: 'user' | 'robot';
+  message: string;
+};
 
 export default function ModalScreen() {
-  const [messages, setMessages] = useState<string[]>([]);
+  const [messages, setMessages] = useState<MessageType[]>([]);
   const [currentText, setCurrentText] = useState('');
   const [isTextValid, setIsTextValid] = useState(false);
   const scrollViewRef = useRef<ScrollView>(null);
 
-  const handleSendMessage = () => {
-    console.log(currentText.length)
-    console.log(currentText)
+  // Initialize Gemini AI with token from settings
+  const genAI = new GoogleGenerativeAI(AISettings.geminiToken);
+
+  const handleSendMessage = async () => {
     if (currentText.trim()) {
-      setMessages([...messages, currentText]);
-      setCurrentText(''); // Clear the input
-      setIsTextValid(false); // Reset the button state
-      scrollViewRef?.current?.scrollToEnd({animated: true})
+      const userMessage: MessageType = {
+        type: 'user',
+        message: currentText
+      };
+      setMessages(prev => [...prev, userMessage]);
+
+      // Add typing indicator after a small delay
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      const typingMessage: MessageType = {
+        type: 'robot',
+        message: 'Typing...'
+      };
+      setMessages(prev => [...prev, typingMessage]);
+      setCurrentText('');
+      setIsTextValid(false);
+      scrollViewRef?.current?.scrollToEnd({animated: true});
+
+      try {
+        const model = genAI.getGenerativeModel({ model: "learnlm-1.5-pro-experimental" });
+        const prompt = `${AISettings.trainingData}\n\nUser: ${currentText}`;
+        const result = await model.generateContent(prompt);
+        const response = await result.response;
+        const aiText = response.text();
+
+        // Replace typing indicator with actual message
+        setMessages(prev => prev.slice(0, -1).concat({
+          type: 'robot',
+          message: aiText
+        }));
+      } catch (error) {
+        console.error('AI Error:', error);
+        // Replace typing indicator with error message
+        setMessages(prev => prev.slice(0, -1).concat({
+          type: 'robot',
+          message: 'Oooopsies! I encountered an error!'
+        }));
+      }
+      scrollViewRef?.current?.scrollToEnd({animated: true});
     }
   };
 
@@ -41,14 +84,14 @@ export default function ModalScreen() {
         </TouchableOpacity>
         <View>
           <Image source={{
-            uri: 'https://cdn.discordapp.com/avatars/793983601288544286/bb5684e2e246ce452aaebb584d9a7c91'
+            uri: AISettings.profilePicture
             }} 
             width={40} 
             height={40} 
             style={styles.imageContainer}
           />
         </View>
-        <Text style={{...styles.title, marginLeft: 10}}>Asaba Harumasa</Text>
+        <Text style={{...styles.title, marginLeft: 10}}>{AISettings.name}</Text>
       </View>
       <ScrollView 
         ref={scrollViewRef}
@@ -59,8 +102,29 @@ export default function ModalScreen() {
         scrollEnabled={true}
         bounces={true}
       >     
+        <View style={styles.introduction}>
+          <Image 
+            source={{
+              uri: AISettings.profilePicture
+            }}
+            width={128}
+            height={128}
+            style={{borderRadius: 500}}
+          />
+          <Text style={{fontSize: 24, fontFamily: 'ZZZWebFont', marginTop: 10}}>{AISettings.name}</Text>
+          <Text style={{fontSize: 16, fontFamily: 'ZZZWebFont', marginTop: 10, color: Colors.default.secondaryBackground, textAlign: 'center'}}>
+            This is the start of your Knock Knock conversation with {AISettings.name}
+          </Text>
+        </View>
         {messages.map((message, index) => (
-          <MessageBubble message={message} key={index} direction={2} source='https://cdn.discordapp.com/avatars/793983601288544286/bb5684e2e246ce452aaebb584d9a7c91' />
+          <MessageBubble 
+            message={message.message} 
+            key={index} 
+            direction={message.type === 'user' ? 2 : 1} 
+            source={message.type === 'user' 
+              ? AISettings.profilePicture
+              : AISettings.profilePicture} 
+          />
         ))}
       </ScrollView>
       <View style={styles.footer}>
@@ -94,6 +158,11 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.default.background,
     padding: 20
+  },
+  introduction: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center'
   },
   mainMessageView: {
     flex: 1,

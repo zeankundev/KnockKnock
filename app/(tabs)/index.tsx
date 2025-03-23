@@ -8,6 +8,7 @@ import { Text, View } from '@/components/Themed';
 import Colors from '@/constants/Colors';
 import {LinearGradient} from 'react-native-linear-gradient';
 import TextField from '@/components/TextField';
+import AISettings from '@/components/config/AISettings';
 
 export default function TabOneScreen() {
   return (
@@ -21,14 +22,14 @@ export default function TabOneScreen() {
           <View style={styles.contactInfo}>
         <Image 
         source={{
-          uri: 'https://cdn.discordapp.com/avatars/793983601288544286/bb5684e2e246ce452aaebb584d9a7c91'
+          uri: AISettings.profilePicture
         }}
         width={52}
         height={52}
         style={{borderRadius: 100}}
         />
         <View style={styles.nestedContactInfo}>
-          <Text style={styles.title}>Asaba Harumasa</Text>
+          <Text style={styles.title}>{AISettings.name}</Text>
           <Text style={styles.subtitle}>Start chatting now...</Text>
         </View>
           </View>
