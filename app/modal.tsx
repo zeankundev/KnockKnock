@@ -40,7 +40,8 @@ export default function ModalScreen() {
         message: currentText
       };
       setMessages(prev => [...prev, userMessage]);
-
+      setCurrentText('');
+      setIsTextValid(false);
       // Add typing indicator after a small delay
       await new Promise(resolve => setTimeout(resolve, 1500));
       const typingMessage: MessageType = {
@@ -48,8 +49,6 @@ export default function ModalScreen() {
         message: 'Typing...'
       };
       setMessages(prev => [...prev, typingMessage]);
-      setCurrentText('');
-      setIsTextValid(false);
       scrollViewRef?.current?.scrollToEnd({animated: true});
 
       try {
