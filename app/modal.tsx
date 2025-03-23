@@ -6,17 +6,16 @@ import { Text, View } from '@/components/Themed';
 import { SvgXml } from 'react-native-svg';
 import Colors from '@/constants/Colors';
 
-import { router } from 'expo-router';
+import { router, useGlobalSearchParams, useLocalSearchParams } from 'expo-router';
 import { TouchableOpacity } from 'react-native';
 import VectorGraphics from '@/constants/VectorGraphics';
 import TextField from '@/components/TextField';
 import CircularButton from '@/components/CircularButton';
 // Add this at the top with other imports
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import MessageBubble from '@/components/MessageBubble';
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import AISettings from '../components/config/AISettings';
 
 // Add these type definitions
 type MessageType = {
@@ -24,14 +23,65 @@ type MessageType = {
   message: string;
 };
 
+type GenerativeAISettings = {
+  name: string;
+  tag: string;
+  profilePicture: string;
+  geminiToken: string;
+  trainingData: string;
+}
+
+let aiSettings: GenerativeAISettings = {
+  name: '',
+  tag: '',
+  profilePicture: '',
+  geminiToken: '',
+  trainingData: ''
+};
+
 export default function ModalScreen() {
   const [messages, setMessages] = useState<MessageType[]>([]);
   const [currentText, setCurrentText] = useState('');
   const [isTextValid, setIsTextValid] = useState(false);
+  const [AISettings, setAISettings] = useState<GenerativeAISettings | null>(null);
+  const { generativeAITag } = useLocalSearchParams<{generativeAITag: string}>();
   const scrollViewRef = useRef<ScrollView>(null);
+  const PROD_JSON_URL = 'https://raw.githubusercontent.com/zeankundev/cdn/refs/heads/main/genai.json';
 
   // Initialize Gemini AI with token from settings
-  const genAI = new GoogleGenerativeAI(AISettings.geminiToken);
+
+  useEffect(() => {
+    const loadAISettings = async () => {
+      if (generativeAITag) {
+        try {
+          const response = await fetch(PROD_JSON_URL);
+          if (!response.ok) throw new Error('Network response was not ok');
+          const data = await response.json();
+          console.log(data)
+          const foundAI = data.find((ai: any) => ai.tag === generativeAITag);
+          console.log('[DEBUG] Found AI object:', foundAI);
+
+          // Now set it
+          if (foundAI) {
+            setAISettings(foundAI);
+          } else {
+            console.warn('[WARN] No matching AI found for tag:', generativeAITag);
+          }
+        } catch (error) {
+          console.error('💥 Error loading AI settings:', error);
+        }
+      }
+    };
+    loadAISettings();
+  }, [generativeAITag])
+
+  const [genAI, setGenAI] = useState<GoogleGenerativeAI | null>(null);
+
+  useEffect(() => {
+    if (AISettings?.geminiToken) {
+      setGenAI(new GoogleGenerativeAI(AISettings.geminiToken));
+    }
+  }, [AISettings]);
 
   const handleSendMessage = async () => {
     if (currentText.trim()) {
@@ -52,8 +102,9 @@ export default function ModalScreen() {
       scrollViewRef?.current?.scrollToEnd({animated: true});
 
       try {
+        if (!genAI) throw new Error('AI not initialized');
         const model = genAI.getGenerativeModel({ model: "learnlm-1.5-pro-experimental" });
-        const prompt = `${AISettings.trainingData}\n\nUser: ${currentText}`;
+        const prompt = `${AISettings?.trainingData}\n\nUser: ${currentText}`;
         const result = await model.generateContent(prompt);
         const response = await result.response;
         const aiText = response.text();
@@ -85,14 +136,14 @@ export default function ModalScreen() {
         </TouchableOpacity>
         <View>
           <Image source={{
-            uri: AISettings.profilePicture
+            uri: AISettings?.profilePicture
             }} 
             width={40} 
             height={40} 
             style={styles.imageContainer}
           />
         </View>
-        <Text style={{...styles.title, marginLeft: 10}}>{AISettings.name}</Text>
+        <Text style={{...styles.title, marginLeft: 10}}>{AISettings?.name}</Text>
       </View>
       <ScrollView 
         ref={scrollViewRef}
@@ -106,15 +157,15 @@ export default function ModalScreen() {
         <View style={styles.introduction}>
           <Image 
             source={{
-              uri: AISettings.profilePicture
+              uri: AISettings?.profilePicture
             }}
             width={128}
             height={128}
             style={{borderRadius: 500}}
           />
-          <Text style={{fontSize: 24, fontFamily: 'ZZZWebFont', marginTop: 10}}>{AISettings.name}</Text>
+          <Text style={{fontSize: 24, fontFamily: 'ZZZWebFont', marginTop: 10}}>{AISettings?.name}</Text>
           <Text style={{fontSize: 16, fontFamily: 'ZZZWebFont', marginTop: 10, color: Colors.default.secondaryBackground, textAlign: 'center'}}>
-            This is the start of your Knock Knock conversation with {AISettings.name}
+            This is the start of your Knock Knock conversation with {AISettings?.name}
           </Text>
         </View>
         {messages.map((message, index) => (
@@ -123,8 +174,8 @@ export default function ModalScreen() {
             key={index} 
             direction={message.type === 'user' ? 2 : 1} 
             source={message.type === 'user' 
-              ? AISettings.profilePicture
-              : AISettings.profilePicture} 
+              ? AISettings?.profilePicture || ''
+              : AISettings?.profilePicture || ''} 
           />
         ))}
       </ScrollView>

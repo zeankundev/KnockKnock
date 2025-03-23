@@ -1,6 +1,6 @@
 import { Image, StyleSheet, TouchableOpacity } from 'react-native';
 
-import { Link, Tabs } from 'expo-router';
+import { Link, router, Tabs } from 'expo-router';
 import { Pressable } from 'react-native';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import EditScreenInfo from '@/components/EditScreenInfo';
@@ -17,24 +17,23 @@ export default function TabOneScreen() {
       <View>
         <TextField placeholder='Search for anything (broken atm)'></TextField>
       </View>
-      <Link href="/modal" asChild>
-        <TouchableOpacity style={styles.contactInfo}>
-          <View style={styles.contactInfo}>
-        <Image 
-        source={{
-          uri: AISettings.profilePicture
-        }}
-        width={52}
-        height={52}
-        style={{borderRadius: 100}}
-        />
-        <View style={styles.nestedContactInfo}>
-          <Text style={styles.title}>{AISettings.name}</Text>
-          <Text style={styles.subtitle}>Start chatting now...</Text>
-        </View>
+      <TouchableOpacity 
+        style={styles.contactInfo} 
+        onPress={() => router.push({ pathname: "/modal", params: { generativeAITag: AISettings.tag } })}
+      >
+        <View style={styles.contactInfo}>
+          <Image 
+            source={{ uri: AISettings.profilePicture }}
+            width={52}
+            height={52}
+            style={{ borderRadius: 100 }}
+          />
+          <View style={styles.nestedContactInfo}>
+            <Text style={styles.title}>{AISettings.name}</Text>
+            <Text style={styles.subtitle}>Start chatting now...</Text>
           </View>
-        </TouchableOpacity>
-      </Link>
+        </View>
+      </TouchableOpacity>
     </View>
   );
 }
