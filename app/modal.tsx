@@ -23,6 +23,8 @@ export default function ModalScreen() {
   const scrollViewRef = useRef<ScrollView>(null);
 
   const handleSendMessage = () => {
+    console.log(currentText.length)
+    console.log(currentText)
     if (currentText.trim()) {
       setMessages([...messages, currentText]);
       setCurrentText(''); // Clear the input
