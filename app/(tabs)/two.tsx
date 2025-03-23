@@ -1,4 +1,4 @@
-import { Image, Platform, StyleSheet } from 'react-native';
+import { Image, Platform, StyleSheet, TouchableOpacity } from 'react-native';
 
 import EditScreenInfo from '@/components/EditScreenInfo';
 import { Text, View } from '@/components/Themed';
@@ -6,6 +6,7 @@ import Colors from '@/constants/Colors';
 import * as Device from 'expo-device';
 import { SvgXml } from 'react-native-svg';
 import VectorGraphics from '@/constants/VectorGraphics';
+import { ExternalLink } from '@/components/ExternalLink';
 
 export default function TabTwoScreen() {
   return (
@@ -18,9 +19,22 @@ export default function TabTwoScreen() {
       <Text style={styles.miniText}>hobby-oriented messaging app style. not production-ready yet, at least for now :){'\n'}</Text>
       <View style={styles.copyright}>
         <Text style={{fontFamily: 'ZZZWebFont'}}>made with ❤️ by</Text>
-        <SvgXml xml={VectorGraphics.zeanKunDevLogomark} width={140} height={20}></SvgXml>
+        <TouchableOpacity>
+          <ExternalLink
+            href='https://github.com/zeankundev'
+          >
+            <SvgXml xml={VectorGraphics.zeanKunDevLogomark} width={140} height={20}></SvgXml>
+          </ExternalLink>
+        </TouchableOpacity>
         <Text style={{fontFamily: 'ZZZWebFont'}}>© {new Date().getFullYear()}</Text>
       </View>
+      <TouchableOpacity>
+        <ExternalLink
+          href='https://github.com/zeankundev/KnockKnock'
+        >
+          <Text style={styles.miniText}>(tap here to get your very own build of Knock Knock)</Text>
+        </ExternalLink>
+      </TouchableOpacity>
       <View style={styles.separator} />
       <Text style={styles.title}>Debug/extra info</Text>
       <Text style={styles.miniText}>

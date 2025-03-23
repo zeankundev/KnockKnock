@@ -19,7 +19,7 @@ interface Contact {
 
 export default function TabOneScreen() {
   const [contacts, setContacts] = useState<Contact[] | null>(null);
-  const PROD_JSON_URL = 'https://raw.githubusercontent.com/zeankundev/cdn/refs/heads/main/genai.json';
+  const PROD_JSON_URL = process.env.CONTACT_INFO_JSON;
   useEffect(() => {
     const loadContacts = async () => {
       try {
