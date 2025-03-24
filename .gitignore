@@ -40,3 +40,4 @@ yarn-error.*
 # Miscellaneous AI stuff 
 components/config/AISettings.ts
 tools/data_minifier.py
+tools/data_minifier.py
