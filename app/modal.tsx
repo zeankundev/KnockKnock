@@ -46,7 +46,7 @@ export default function ModalScreen() {
   const [AISettings, setAISettings] = useState<GenerativeAISettings | null>(null);
   const { generativeAITag } = useLocalSearchParams<{generativeAITag: string}>();
   const scrollViewRef = useRef<ScrollView>(null);
-  const PROD_JSON_URL = process.env.CONTACT_INFO_JSON;
+  const PROD_JSON_URL = process.env['EXPO_PUBLIC_CONTACT_INFO_JSON'];
 
   // Initialize Gemini AI with token from settings
 
@@ -54,7 +54,7 @@ export default function ModalScreen() {
     const loadAISettings = async () => {
       if (generativeAITag) {
         try {
-          const response = await fetch(PROD_JSON_URL,{cache: 'no-cache'});
+          const response = await fetch(PROD_JSON_URL || '',{cache: 'no-cache'});
           if (!response.ok) throw new Error('Network response was not ok');
           const data = await response.json();
           console.log(data)
@@ -174,7 +174,7 @@ export default function ModalScreen() {
             key={index} 
             direction={message.type === 'user' ? 2 : 1} 
             source={message.type === 'user' 
-              ? AISettings?.profilePicture || ''
+              ? process.env.CUSTOM_USER_PROFILE_PICTURE || 'https://i.ebayimg.com/images/g/RQkAAOSwqL1mOenh/s-l1200.jpg'
               : AISettings?.profilePicture || ''} 
           />
         ))}

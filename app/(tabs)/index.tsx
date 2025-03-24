@@ -19,11 +19,12 @@ interface Contact {
 
 export default function TabOneScreen() {
   const [contacts, setContacts] = useState<Contact[] | null>(null);
-  const PROD_JSON_URL = process.env.CONTACT_INFO_JSON;
+  const PROD_JSON_URL = process.env['EXPO_PUBLIC_CONTACT_INFO_JSON'];
   useEffect(() => {
     const loadContacts = async () => {
       try {
-        const response = await fetch(PROD_JSON_URL, {cache: 'no-cache'});
+        console.log(`env contactjson: ${process.env.EXPO_PUBLIC_CONTACT_INFO_JSON}, prod json: ${PROD_JSON_URL}`)
+        const response = await fetch(PROD_JSON_URL || '', {cache: 'no-cache'});
         if (!response.ok) throw new Error('Network response was not ok');
         const data = await response.json();
         setContacts(data)

@@ -14,6 +14,7 @@ interface BubbleProps {
     source: string
 }
 export default function MessageBubble(props: BubbleProps, viewProps: ViewProps) {
+    console.log(`Prop source: ${props.source}`)
     return (
         <View style={{...styles.overallMessageContainer, alignItems: props.direction === MESSAGE_DIRECTIONS.RIGHT ? 'flex-end' : 'flex-start'}} {...viewProps}>
             {props.direction == MESSAGE_DIRECTIONS.LEFT && (
