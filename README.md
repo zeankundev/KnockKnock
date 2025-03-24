@@ -59,7 +59,7 @@ You can add as much contacts as you want. Imagination is your only limit. Just m
 - Host your JSON somewhere on the internet. Ignore GitGuardian emails (because you're going to add your token here, if hosted publicly and you don't have a local CDN)
 - Create an `.env` file and populate the following contents with this:
 ```
-CONTACT_INFO_JSON=<JSON you hosted here>
+EXPO_PUBLIC_CONTACT_INFO_JSON=<JSON you hosted here>
 ```
 - Rebuild it (this could be done by `Ctrl+C` followed by `yarn start`)
 - Voila! You're finished!
