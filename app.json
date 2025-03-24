@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "knockknock",
+    "name": "Knock Knock",
     "slug": "knockknock",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -30,7 +30,11 @@
       "backgroundColor": "#000000"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "dev.zeankun.knockknock",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "androidStatusBar": {
       "backgroundColor": "#000000",
@@ -40,9 +44,10 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#000000"
-      }
+      },
+      "package": "dev.zeankun.knockknock"
     },
-    "androidNavigationBar":{
+    "androidNavigationBar": {
       "backgroundColor": "#222222"
     },
     "web": {
@@ -56,6 +61,14 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "5ccea3ec-95b8-41ce-8681-99e14289335f"
+      }
     }
   }
 }
