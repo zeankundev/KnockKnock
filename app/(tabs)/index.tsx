@@ -23,7 +23,6 @@ export default function TabOneScreen() {
   useEffect(() => {
     const loadContacts = async () => {
       try {
-        console.log(`env contactjson: ${process.env.EXPO_PUBLIC_CONTACT_INFO_JSON}, prod json: ${PROD_JSON_URL}`)
         const response = await fetch(PROD_JSON_URL || '', {cache: 'no-cache'});
         if (!response.ok) throw new Error('Network response was not ok');
         const data = await response.json();
