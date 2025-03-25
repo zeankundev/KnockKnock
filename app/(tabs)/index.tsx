@@ -12,6 +12,7 @@ import { useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getLocales } from 'expo-localization';
 import Locales from '@/constants/Locales';
+import { useStringifiedLocale } from '@/components/LocaleManager';
 const FileSystem = require('expo-file-system');
 
 interface Contact {
@@ -25,19 +26,6 @@ export default function TabOneScreen() {
   const [locale, setLocale] = useState<keyof typeof Locales>('en');
   const PROD_JSON_URL = process.env['EXPO_PUBLIC_CONTACT_INFO_JSON'];
   const HISTORY_FILE = 'history.json';
-
-  // Set locale on component mount
-  useEffect(() => {
-    const setDeviceLocale = async () => {
-      const deviceLocales = getLocales();
-      const preferredLocale = deviceLocales[0]?.languageCode || 'en';
-      const supportedLocale = Object.keys(Locales).includes(preferredLocale) ? (preferredLocale as keyof typeof Locales) : 'en';
-      setLocale(supportedLocale);
-      console.log('📢 Locale set to:', supportedLocale);
-    };
-
-    setDeviceLocale();
-  }, []);
 
   // Function to create/check history file
   const initializeHistoryFile = async () => {
@@ -83,9 +71,9 @@ export default function TabOneScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>{Locales[locale].home}</Text>
+      <Text style={styles.title}>{Locales[useStringifiedLocale()].home}</Text>
       <View>
-        <TextField placeholder={Locales[locale].searchForAnything} />
+        <TextField placeholder={Locales[useStringifiedLocale()].searchForAnything} />
       </View>
       <ScrollView
         refreshControl={
@@ -126,7 +114,8 @@ export default function TabOneScreen() {
 }
 
 function LastMessage({ tag, name, locale }: { tag: string; name: string; locale: keyof typeof Locales }) {
-  const [lastMessage, setLastMessage] = useState<string>(Locales[locale].loading);
+  const stringifiedLocale = useStringifiedLocale();
+  const [lastMessage, setLastMessage] = useState<string>(Locales[stringifiedLocale].loading);
 
   useEffect(() => {
     const getLastMessage = async () => {
@@ -142,16 +131,16 @@ function LastMessage({ tag, name, locale }: { tag: string; name: string; locale:
             const truncatedMessage = lastMessageEntry.history[lastIndex].message.substring(0, 20) + '...';
             setLastMessage(`${firstWord}: ${truncatedMessage}`);
           } else {
-            setLastMessage(Locales[locale].newChat);
+            setLastMessage(Locales[stringifiedLocale].newChat);
           }
         }
       } catch (e) {
         console.error('Error getting last message:', e);
-        setLastMessage(Locales[locale].newChat);
+        setLastMessage(Locales[stringifiedLocale].newChat);
       }
     };
     getLastMessage();
-  }, [tag, locale]);
+  }, [tag, locale, stringifiedLocale]);
 
   return <Text style={styles.subtitle}>{lastMessage}</Text>;
 }
