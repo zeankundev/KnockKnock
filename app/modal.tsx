@@ -274,6 +274,7 @@ export default function ModalScreen() {
               setCurrentText(text);
               setIsTextValid(text.length > 0);
             }} 
+            onPress={() => scrollViewRef?.current?.scrollToEnd({animated: true})}
           />
         </View>
         <View style={styles.sideButton}>
