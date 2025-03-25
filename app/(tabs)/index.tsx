@@ -10,6 +10,8 @@ import {LinearGradient} from 'react-native-linear-gradient';
 import TextField from '@/components/TextField';
 import AISettings from '@/components/config/AISettings';
 import { useEffect, useState } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+const FileSystem = require('expo-file-system');
 
 interface Contact {
   profilePicture: string;
@@ -17,10 +19,64 @@ interface Contact {
   name: string;
 }
 
+function LastMessage({ tag, name }: { tag: string, name: string }) {
+  const [lastMessage, setLastMessage] = useState<string>('Loading...');
+  
+  useEffect(() => {
+    const getLastMessage = async () => {
+      try {
+        const historyData = await AsyncStorage.getItem('history.json');
+        if (historyData) {
+          const historyType = JSON.parse(historyData);
+          console.log(JSON.stringify(historyType));
+          const lastMessage = historyType.find((entry: any) => entry.tag === tag);
+            if (lastMessage && lastMessage.history && lastMessage.history.length > 0) {
+              const lastHistoryEntry = lastMessage.history[lastMessage.history.length - 1];
+              if (lastHistoryEntry && lastHistoryEntry.message) {
+                const lastIndex = lastMessage.history.length - 1;
+                const firstWord = name.split(' ')[0];
+                const truncatedMessage = lastMessage.history[lastIndex].message.substring(0, 20) + '...';
+                setLastMessage(`${firstWord}: ${truncatedMessage}`);
+              } else {
+                setLastMessage('Start chatting now...');
+              }
+            } else {
+              setLastMessage('Start chatting now...');
+            }
+        }
+      } catch (e) {
+        console.error('Error getting last message:', e);
+      }
+    };
+    getLastMessage();
+  }, [tag]);
+
+  return <Text style={styles.subtitle}>{lastMessage}</Text>;
+}
+
+
 export default function TabOneScreen() {
   const [contacts, setContacts] = useState<Contact[] | null>(null);
   const PROD_JSON_URL = process.env['EXPO_PUBLIC_CONTACT_INFO_JSON'];
+  const HISTORY_FILE = 'history.json';
+  
+  // Function to create/check history file
+  const initializeHistoryFile = async () => {
+    const historyPath = `${FileSystem.documentDirectory}${HISTORY_FILE}`;
+    
+    try {
+      const fileInfo = await FileSystem.getInfoAsync(historyPath);
+      if (!fileInfo.exists) {
+        await FileSystem.writeAsStringAsync(historyPath, JSON.stringify([]));
+        console.log('Created history file');
+      }
+    } catch (error) {
+      console.error('Error initializing history file:', error);
+    }
+  };
+
   useEffect(() => {
+    initializeHistoryFile();
     const loadContacts = async () => {
       try {
         const response = await fetch(PROD_JSON_URL || '', {cache: 'no-cache'});
@@ -33,6 +89,7 @@ export default function TabOneScreen() {
     }
     loadContacts();
   }, [contacts])
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Home</Text>
@@ -67,7 +124,9 @@ export default function TabOneScreen() {
               />
               <View style={styles.nestedContactInfo}>
                 <Text style={styles.title}>{contact.name}</Text>
-                <Text style={styles.subtitle}>Start chatting now...</Text>
+                <Text style={styles.subtitle}>
+                  <LastMessage tag={contact.tag} name={contact.name} />
+                </Text>
               </View>
             </View>
           </TouchableOpacity>

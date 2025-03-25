@@ -16,6 +16,7 @@ import { useEffect, useRef, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import MessageBubble from '@/components/MessageBubble';
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Add these type definitions
 type MessageType = {
@@ -75,6 +76,30 @@ export default function ModalScreen() {
     loadAISettings();
   }, [generativeAITag])
 
+  // Load conversation history from AsyncStorage
+  useEffect(() => {
+    const loadHistory = async () => {
+      try {
+        const historyData = await AsyncStorage.getItem('history.json');
+        if (historyData) {
+          const histories = JSON.parse(historyData);
+            console.log('Loaded conversation histories:', histories);
+            // Find history matching current AI tag
+            if (generativeAITag) {
+              const matchingHistory = histories.find((h: any) => h.tag === generativeAITag);
+              if (matchingHistory && matchingHistory.history) {
+                setMessages(matchingHistory.history);
+                scrollViewRef?.current?.scrollToEnd({animated: true});
+              }
+            }
+        }
+      } catch (error) {
+        console.error('Error loading history:', error);
+      }
+    };
+    loadHistory();
+  }, []);
+
   const [genAI, setGenAI] = useState<GoogleGenerativeAI | null>(null);
 
   useEffect(() => {
@@ -92,6 +117,7 @@ export default function ModalScreen() {
       setMessages(prev => [...prev, userMessage]);
       setCurrentText('');
       setIsTextValid(false);
+      scrollViewRef?.current?.scrollToEnd({animated: true});
       // Add typing indicator after a small delay
       await new Promise(resolve => setTimeout(resolve, 1500));
       const typingMessage: MessageType = {
@@ -104,7 +130,12 @@ export default function ModalScreen() {
       try {
         if (!genAI) throw new Error('AI not initialized');
         const model = genAI.getGenerativeModel({ model: "learnlm-1.5-pro-experimental" });
-        const prompt = `${AISettings?.trainingData}\n\nUser: ${currentText}`;
+        // Convert previous messages to conversation history format
+        const conversationHistory = messages.map(msg => 
+          msg.type === 'user' ? `user: ${msg.message}` : `you: ${msg.message}`
+        ).join('\n');
+        const prompt = `${AISettings?.trainingData}\n\nConversation history:\n${conversationHistory}\nuser: ${currentText}`;
+        console.log(prompt)
         const result = await model.generateContent(prompt);
         const response = await result.response;
         const aiText = response.text();
@@ -112,10 +143,42 @@ export default function ModalScreen() {
         console.log(`AI said: ${aiText}`)
 
         // Replace typing indicator with actual message
-        setMessages(prev => prev.slice(0, -1).concat({
-          type: 'robot',
-          message: aiText
-        }));
+        setMessages(prev => {
+          const updatedMessages = prev.slice(0, -1).concat({
+            type: 'robot',
+            message: aiText
+          });
+
+          // Save successful conversation to history.json
+          const historyData = {
+            tag: generativeAITag,
+            history: updatedMessages
+          };
+
+          // Use AsyncStorage to save the history
+          const saveHistory = async () => {
+            try {
+              const existingHistory = await AsyncStorage.getItem('history.json');
+              let histories = existingHistory ? JSON.parse(existingHistory) : [];
+              
+              // Find and update existing history or add new one
+              const existingIndex = histories.findIndex((h: any) => h.tag === generativeAITag);
+              if (existingIndex >= 0) {
+                histories[existingIndex] = historyData;
+              } else {
+                histories.push(historyData);
+              }
+              
+              await AsyncStorage.setItem('history.json', JSON.stringify(histories));
+              console.log('Saved history:', JSON.stringify(histories));
+            } catch (error) {
+              console.error('Error saving history:', error);
+            }
+          };
+
+          saveHistory();
+          return updatedMessages;
+        });
       } catch (error) {
         console.error('AI Error:', error);
         // Replace typing indicator with error message
@@ -125,6 +188,21 @@ export default function ModalScreen() {
         }));
       }
       scrollViewRef?.current?.scrollToEnd({animated: true});
+    }
+  };
+  const clearChat = async () => {
+    try {
+      const existingHistory = await AsyncStorage.getItem('history.json');
+      if (existingHistory) {
+        const histories = JSON.parse(existingHistory);
+        const updatedHistories = histories.map((h: any) => 
+          h.tag === generativeAITag ? { ...h, history: [] } : h
+        );
+        await AsyncStorage.setItem('history.json', JSON.stringify(updatedHistories));
+      }
+      setMessages([]);
+    } catch (error) {
+      console.error('Error clearing chat:', error);
     }
   };
 
@@ -155,6 +233,9 @@ export default function ModalScreen() {
         bounces={true}
       >     
         <View style={styles.introduction}>
+          <TouchableOpacity onPress={clearChat}>
+            <Text style={{color: Colors.default.secondaryBackground}}>Clear chat</Text>
+          </TouchableOpacity>
           <Image 
             source={{
               uri: AISettings?.profilePicture
@@ -164,9 +245,13 @@ export default function ModalScreen() {
             style={{borderRadius: 500}}
           />
           <Text style={{fontSize: 24, fontFamily: 'ZZZWebFont', marginTop: 10}}>{AISettings?.name}</Text>
-          <Text style={{fontSize: 16, fontFamily: 'ZZZWebFont', marginTop: 10, color: Colors.default.secondaryBackground, textAlign: 'center'}}>
+          <Text style={{fontSize: 16, fontFamily: 'ZZZWebFont', marginTop: 10, color: Colors.default.tertiaryBackground, textAlign: 'center'}}>
             This is the start of your Knock Knock conversation with {AISettings?.name}
           </Text>
+          <View style={{display: 'flex', flexDirection: 'row', alignItems: 'center', marginTop: 10}}>
+            <SvgXml xml={VectorGraphics.robotIcon} width={18} height={18} />
+            <Text style={{color: Colors.default.tertiaryBackground, fontFamily: 'ZZZWebFont', fontSize: 12, marginLeft: 10}}>AI responses may be inaccurate or false.</Text>
+          </View>
         </View>
         {messages.map((message, index) => (
           <MessageBubble 

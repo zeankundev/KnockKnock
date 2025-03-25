@@ -7,6 +7,7 @@ export default {
     tint: '#fff',
     gradientEndColor: '#141414',
     secondaryBackground: '#222222',
+    tertiaryBackground: '#444444',
     text: '#fff',
     themeColor: '#D9FA00',
     rightBubbleChat: '#2C58E2',
