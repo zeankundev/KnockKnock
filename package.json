@@ -2,7 +2,7 @@
   "name": "knockknock",
   "main": "expo-router/entry",
   "license": "0BSD",
-  "version": "1.0.0",
+  "version": "0.6.2",
   "scripts": {
     "start": "expo start",
     "android": "expo start --android",
