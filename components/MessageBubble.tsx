@@ -1,6 +1,7 @@
 import Colors from "@/constants/Colors";
 import VectorGraphics from "@/constants/VectorGraphics";
-import { Image, StyleSheet, View, Text, ViewProps } from "react-native";
+import * as Clipboard from 'expo-clipboard'
+import { Image, StyleSheet, View, Text, ViewProps, TouchableOpacity,} from "react-native";
 import { SvgXml } from "react-native-svg";
 
 const MESSAGE_DIRECTIONS = {
@@ -16,61 +17,63 @@ interface BubbleProps {
 export default function MessageBubble(props: BubbleProps, viewProps: ViewProps) {
     console.log(`Prop source: ${props.source}`)
     return (
-        <View style={{...styles.overallMessageContainer, alignItems: props.direction === MESSAGE_DIRECTIONS.RIGHT ? 'flex-end' : 'flex-start'}} {...viewProps}>
-            {props.direction == MESSAGE_DIRECTIONS.LEFT && (
-            <View style={styles.messageContainer}>
-                <Image source={{ uri: props.source }} style={{...styles.genericImageContainer, marginRight: 10}} />
-                    <View>
-                    <SvgXml xml={VectorGraphics.bubbleChatLeftWhite} style={styles.messageBubbleLeftISaid} width={24} height={24}/>
-                    <View style={{
-                        ...styles.messageBubbleLeftDialogue,
-                        borderRadius: props.message.includes('\n') || props.message.length > MESSAGE_THRESHOLD ? 20 : 50
-                    }}>
-                        <Text style={styles.messageBubbleLeftText}>
-                            {(() => {
-                                const processedMessage = props.message.includes('\n')
-                                    ? props.message
-                                    : props.message.trim().split(' ').reduce((acc, word) => {
-                                        const lastLine = acc.split('\n').pop() || '';
-                                        const trimmedWord = word.trim();
-                                        if (!trimmedWord) return acc;
-                                        return lastLine.length + trimmedWord.length + 1 > MESSAGE_THRESHOLD - 5
-                                            ? `${acc}${acc ? '\n' : ''}${trimmedWord}`
-                                            : acc.length === 0 ? trimmedWord : `${acc} ${trimmedWord}`;
-                                    }, '');
-                                console.log('Processed message:', processedMessage);
-                                return processedMessage;
-                            })()}
-                        </Text>
+        <TouchableOpacity activeOpacity={1} onLongPress={async () => Clipboard.setStringAsync(props.message)}>
+            <View style={{...styles.overallMessageContainer, alignItems: props.direction === MESSAGE_DIRECTIONS.RIGHT ? 'flex-end' : 'flex-start'}} {...viewProps}>
+                {props.direction == MESSAGE_DIRECTIONS.LEFT && (
+                <View style={styles.messageContainer}>
+                    <Image source={{ uri: props.source }} style={{...styles.genericImageContainer, marginRight: 10}} />
+                        <View>
+                        <SvgXml xml={VectorGraphics.bubbleChatLeftWhite} style={styles.messageBubbleLeftISaid} width={24} height={24}/>
+                        <View style={{
+                            ...styles.messageBubbleLeftDialogue,
+                            borderRadius: props.message.includes('\n') || props.message.length > MESSAGE_THRESHOLD ? 20 : 50
+                        }}>
+                            <Text style={styles.messageBubbleLeftText}>
+                                {(() => {
+                                    const processedMessage = props.message.includes('\n')
+                                        ? props.message
+                                        : props.message.trim().split(' ').reduce((acc, word) => {
+                                            const lastLine = acc.split('\n').pop() || '';
+                                            const trimmedWord = word.trim();
+                                            if (!trimmedWord) return acc;
+                                            return lastLine.length + trimmedWord.length + 1 > MESSAGE_THRESHOLD - 5
+                                                ? `${acc}${acc ? '\n' : ''}${trimmedWord}`
+                                                : acc.length === 0 ? trimmedWord : `${acc} ${trimmedWord}`;
+                                        }, '');
+                                    console.log('Processed message:', processedMessage);
+                                    return processedMessage;
+                                })()}
+                            </Text>
+                        </View>
                     </View>
                 </View>
-            </View>
-            )}
-            {props.direction == MESSAGE_DIRECTIONS.RIGHT && (
-            <View style={styles.messageContainer}>
-                <SvgXml xml={VectorGraphics.bubbleChatRightBlue} style={styles.messageBubbleRightISaid} width={24} height={24}/>
-                <View style={{
-                        ...styles.messageBubbleRightDialogue,
-                        borderRadius: props.message.includes('\n') || props.message.length > MESSAGE_THRESHOLD ? 20 : 50
-                    }}>
-                    <Text style={styles.messageBubbleRightText}>
-                        {props.message.includes('\n')
-                            ? props.message
-                            : props.message.trim().split(' ').reduce((acc, word) => {
-                                const lastLine = acc.split('\n').pop() || '';
-                                const trimmedWord = word.trim();
-                                if (!trimmedWord) return acc;
-                                return lastLine.length + trimmedWord.length + 1 > MESSAGE_THRESHOLD
-                                    ? `${acc}${acc ? '\n' : ''}${trimmedWord}`
-                                    : acc.length === 0 ? trimmedWord : `${acc} ${trimmedWord}`;
-                            }, '')
-                        }
-                    </Text>
+                )}
+                {props.direction == MESSAGE_DIRECTIONS.RIGHT && (
+                <View style={styles.messageContainer}>
+                    <SvgXml xml={VectorGraphics.bubbleChatRightBlue} style={styles.messageBubbleRightISaid} width={24} height={24}/>
+                    <View style={{
+                            ...styles.messageBubbleRightDialogue,
+                            borderRadius: props.message.includes('\n') || props.message.length > MESSAGE_THRESHOLD ? 20 : 50
+                        }}>
+                        <Text style={styles.messageBubbleRightText}>
+                            {props.message.includes('\n')
+                                ? props.message
+                                : props.message.trim().split(' ').reduce((acc, word) => {
+                                    const lastLine = acc.split('\n').pop() || '';
+                                    const trimmedWord = word.trim();
+                                    if (!trimmedWord) return acc;
+                                    return lastLine.length + trimmedWord.length + 1 > MESSAGE_THRESHOLD
+                                        ? `${acc}${acc ? '\n' : ''}${trimmedWord}`
+                                        : acc.length === 0 ? trimmedWord : `${acc} ${trimmedWord}`;
+                                }, '')
+                            }
+                        </Text>
+                    </View>
+                    <Image source={{ uri: props.source }} style={{...styles.genericImageContainer, marginLeft: 10}} />
                 </View>
-                <Image source={{ uri: props.source }} style={{...styles.genericImageContainer, marginLeft: 10}} />
+                )}
             </View>
-            )}
-        </View>
+        </TouchableOpacity>
     )
 }
 
