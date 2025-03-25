@@ -13,6 +13,8 @@ import TextField from '@/components/TextField';
 import CircularButton from '@/components/CircularButton';
 // Add this at the top with other imports
 import { useEffect, useRef, useState } from 'react';
+import Locales from '@/constants/Locales';
+import { getLocales } from 'expo-localization';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import MessageBubble from '@/components/MessageBubble';
 import { GoogleGenerativeAI } from "@google/generative-ai";
@@ -45,12 +47,23 @@ export default function ModalScreen() {
   const [currentText, setCurrentText] = useState('');
   const [isTextValid, setIsTextValid] = useState(false);
   const [AISettings, setAISettings] = useState<GenerativeAISettings | null>(null);
+  const [locale, setLocale] = useState<keyof typeof Locales>('en');
   const { generativeAITag } = useLocalSearchParams<{generativeAITag: string}>();
   const scrollViewRef = useRef<ScrollView>(null);
   const PROD_JSON_URL = process.env['EXPO_PUBLIC_CONTACT_INFO_JSON'];
 
   // Initialize Gemini AI with token from settings
+  useEffect(() => {
+    const setDeviceLocale = async () => {
+      const deviceLocales = getLocales();
+      const preferredLocale = deviceLocales[0]?.languageCode || 'en';
+      const supportedLocale = Object.keys(Locales).includes(preferredLocale) ? (preferredLocale as keyof typeof Locales) : 'en';
+      setLocale(supportedLocale);
+      console.log('📢 Locale set to:', supportedLocale);
+    };
 
+    setDeviceLocale();
+  }, []);
   useEffect(() => {
     const loadAISettings = async () => {
       if (generativeAITag) {
@@ -246,11 +259,11 @@ export default function ModalScreen() {
           />
           <Text style={{fontSize: 24, fontFamily: 'ZZZWebFont', marginTop: 10}}>{AISettings?.name}</Text>
           <Text style={{fontSize: 16, fontFamily: 'ZZZWebFont', marginTop: 10, color: Colors.default.tertiaryBackground, textAlign: 'center'}}>
-            This is the start of your Knock Knock conversation with {AISettings?.name}
+            {Locales[locale].thisIsTheStart} {AISettings?.name}
           </Text>
           <View style={{display: 'flex', flexDirection: 'row', alignItems: 'center', marginTop: 10}}>
             <SvgXml xml={VectorGraphics.robotIcon} width={18} height={18} />
-            <Text style={{color: Colors.default.tertiaryBackground, fontFamily: 'ZZZWebFont', fontSize: 12, marginLeft: 10}}>AI responses may be inaccurate or false.</Text>
+            <Text style={{color: Colors.default.tertiaryBackground, fontFamily: 'ZZZWebFont', fontSize: 12, marginLeft: 10}}>{Locales[locale].warning}</Text>
           </View>
         </View>
         {messages.map((message, index) => (
@@ -267,7 +280,7 @@ export default function ModalScreen() {
       <View style={styles.footer}>
         <View style={styles.leftActions}>
           <TextField 
-            placeholder='Send a message' 
+            placeholder={Locales[locale].sendAMessage} 
             value={currentText}
             onChangeText={text => {
               setCurrentText(text);

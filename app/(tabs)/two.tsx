@@ -1,7 +1,9 @@
 import { Image, Platform, StyleSheet, TouchableOpacity } from 'react-native';
-
+import { useState, useEffect } from 'react';
 import EditScreenInfo from '@/components/EditScreenInfo';
 import { Text, View } from '@/components/Themed';
+import { getLocales } from 'expo-localization';
+import Locales from '@/constants/Locales';
 import Colors from '@/constants/Colors';
 import * as Device from 'expo-device';
 import { SvgXml } from 'react-native-svg';
@@ -9,6 +11,18 @@ import VectorGraphics from '@/constants/VectorGraphics';
 import { ExternalLink } from '@/components/ExternalLink';
 
 export default function TabTwoScreen() {
+  const [locale, setLocale] = useState<keyof typeof Locales>('en');
+  useEffect(() => {
+      const setDeviceLocale = async () => {
+        const deviceLocales = getLocales();
+        const preferredLocale = deviceLocales[0]?.languageCode || 'en';
+        const supportedLocale = Object.keys(Locales).includes(preferredLocale) ? (preferredLocale as keyof typeof Locales) : 'en';
+        setLocale(supportedLocale);
+        console.log('📢 Locale set to:', supportedLocale);
+      };
+  
+      setDeviceLocale();
+    }, []);
   return (
     <View style={styles.container}>
       <Image
@@ -16,7 +30,7 @@ export default function TabTwoScreen() {
         style={{ width: 128, height: 128 }}
       />
       <Text style={styles.title}>Knock Knock</Text>
-      <Text style={styles.miniText}>hobby-oriented messaging app style. not production-ready yet, at least for now :){'\n'}</Text>
+      <Text style={styles.miniText}>{Locales[locale].about}{'\n'}</Text>
       <View style={styles.copyright}>
         <Text style={{fontFamily: 'ZZZWebFont'}}>made with ❤️ by</Text>
         <TouchableOpacity>
@@ -32,7 +46,7 @@ export default function TabTwoScreen() {
         <ExternalLink
           href='https://github.com/zeankundev/KnockKnock'
         >
-          <Text style={styles.miniText}>(tap here to get your very own build of Knock Knock)</Text>
+          <Text style={styles.miniText}>({Locales[locale].getYourOwnBuild})</Text>
         </ExternalLink>
       </TouchableOpacity>
       <View style={styles.separator} />

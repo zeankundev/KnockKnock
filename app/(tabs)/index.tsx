@@ -1,16 +1,17 @@
 import { Image, RefreshControl, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
-
 import { Link, router, Tabs } from 'expo-router';
 import { Pressable } from 'react-native';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import EditScreenInfo from '@/components/EditScreenInfo';
 import { Text, View } from '@/components/Themed';
 import Colors from '@/constants/Colors';
-import {LinearGradient} from 'react-native-linear-gradient';
+import { LinearGradient } from 'react-native-linear-gradient';
 import TextField from '@/components/TextField';
 import AISettings from '@/components/config/AISettings';
 import { useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getLocales } from 'expo-localization';
+import Locales from '@/constants/Locales';
 const FileSystem = require('expo-file-system');
 
 interface Contact {
@@ -19,59 +20,37 @@ interface Contact {
   name: string;
 }
 
-function LastMessage({ tag, name }: { tag: string, name: string }) {
-  const [lastMessage, setLastMessage] = useState<string>('Loading...');
-  
-  useEffect(() => {
-    const getLastMessage = async () => {
-      try {
-        const historyData = await AsyncStorage.getItem('history.json');
-        if (historyData) {
-          const historyType = JSON.parse(historyData);
-          console.log(JSON.stringify(historyType));
-          const lastMessage = historyType.find((entry: any) => entry.tag === tag);
-            if (lastMessage && lastMessage.history && lastMessage.history.length > 0) {
-              const lastHistoryEntry = lastMessage.history[lastMessage.history.length - 1];
-              if (lastHistoryEntry && lastHistoryEntry.message) {
-                const lastIndex = lastMessage.history.length - 1;
-                const firstWord = name.split(' ')[0];
-                const truncatedMessage = lastMessage.history[lastIndex].message.substring(0, 20) + '...';
-                setLastMessage(`${firstWord}: ${truncatedMessage}`);
-              } else {
-                setLastMessage('Start chatting now...');
-              }
-            } else {
-              setLastMessage('Start chatting now...');
-            }
-        }
-      } catch (e) {
-        console.error('Error getting last message:', e);
-      }
-    };
-    getLastMessage();
-  }, [tag]);
-
-  return <Text style={styles.subtitle}>{lastMessage}</Text>;
-}
-
-
 export default function TabOneScreen() {
   const [contacts, setContacts] = useState<Contact[] | null>(null);
+  const [locale, setLocale] = useState<keyof typeof Locales>('en');
   const PROD_JSON_URL = process.env['EXPO_PUBLIC_CONTACT_INFO_JSON'];
   const HISTORY_FILE = 'history.json';
-  
+
+  // Set locale on component mount
+  useEffect(() => {
+    const setDeviceLocale = async () => {
+      const deviceLocales = getLocales();
+      const preferredLocale = deviceLocales[0]?.languageCode || 'en';
+      const supportedLocale = Object.keys(Locales).includes(preferredLocale) ? (preferredLocale as keyof typeof Locales) : 'en';
+      setLocale(supportedLocale);
+      console.log('📢 Locale set to:', supportedLocale);
+    };
+
+    setDeviceLocale();
+  }, []);
+
   // Function to create/check history file
   const initializeHistoryFile = async () => {
     const historyPath = `${FileSystem.documentDirectory}${HISTORY_FILE}`;
-    
+
     try {
       const fileInfo = await FileSystem.getInfoAsync(historyPath);
       if (!fileInfo.exists) {
         await FileSystem.writeAsStringAsync(historyPath, JSON.stringify([]));
-        console.log('Created history file');
+        console.log('✅ Created history file');
       }
     } catch (error) {
-      console.error('Error initializing history file:', error);
+      console.error('❌ Error initializing history file:', error);
     }
   };
 
@@ -79,28 +58,28 @@ export default function TabOneScreen() {
     initializeHistoryFile();
     const loadContacts = async () => {
       try {
-        const response = await fetch(PROD_JSON_URL || '', {cache: 'no-cache'});
+        const response = await fetch(PROD_JSON_URL || '', { cache: 'no-cache' });
         if (!response.ok) throw new Error('Network response was not ok');
         const data = await response.json();
-        setContacts(data)
+        setContacts(data);
       } catch (error) {
         console.error('💥 Error loading contacts:', error);
       }
-    }
+    };
     loadContacts();
-  }, [contacts])
+  }, []);
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Home</Text>
+      <Text style={styles.title}>{Locales[locale].home}</Text>
       <View>
-        <TextField placeholder='Search for anything (broken atm)'></TextField>
+        <TextField placeholder={Locales[locale].searchForAnything} />
       </View>
       <ScrollView
         refreshControl={
           <RefreshControl
-          refreshing={contacts === null}
-          onRefresh={() => setContacts(null)}
+            refreshing={contacts === null}
+            onRefresh={() => setContacts(null)}
           />
         }
         contentContainerStyle={{ flexGrow: 1, paddingBottom: 100 }}
@@ -110,13 +89,13 @@ export default function TabOneScreen() {
         bounces={true}
       >
         {contacts?.map((contact, index) => (
-          <TouchableOpacity 
-            style={styles.contactInfo} 
-            onPress={() => router.push({ pathname: "/modal", params: { generativeAITag: contact.tag } })}
+          <TouchableOpacity
+            style={styles.contactInfo}
+            onPress={() => router.push({ pathname: '/modal', params: { generativeAITag: contact.tag } })}
             key={index}
           >
             <View style={styles.contactInfo}>
-              <Image 
+              <Image
                 source={{ uri: contact.profilePicture }}
                 width={52}
                 height={52}
@@ -124,9 +103,7 @@ export default function TabOneScreen() {
               />
               <View style={styles.nestedContactInfo}>
                 <Text style={styles.title}>{contact.name}</Text>
-                <Text style={styles.subtitle}>
-                  <LastMessage tag={contact.tag} name={contact.name} />
-                </Text>
+                <LastMessage tag={contact.tag} name={contact.name} locale={locale} />
               </View>
             </View>
           </TouchableOpacity>
@@ -134,6 +111,37 @@ export default function TabOneScreen() {
       </ScrollView>
     </View>
   );
+}
+
+function LastMessage({ tag, name, locale }: { tag: string; name: string; locale: keyof typeof Locales }) {
+  const [lastMessage, setLastMessage] = useState<string>(Locales[locale].loading);
+
+  useEffect(() => {
+    const getLastMessage = async () => {
+      try {
+        const historyData = await AsyncStorage.getItem('history.json');
+        if (historyData) {
+          const historyType = JSON.parse(historyData);
+          console.log(JSON.stringify(historyType));
+          const lastMessageEntry = historyType.find((entry: any) => entry.tag === tag);
+          if (lastMessageEntry?.history?.length > 0) {
+            const lastIndex = lastMessageEntry.history.length - 1;
+            const firstWord = name.split(' ')[0];
+            const truncatedMessage = lastMessageEntry.history[lastIndex].message.substring(0, 20) + '...';
+            setLastMessage(`${firstWord}: ${truncatedMessage}`);
+          } else {
+            setLastMessage(Locales[locale].newChat);
+          }
+        }
+      } catch (e) {
+        console.error('Error getting last message:', e);
+        setLastMessage(Locales[locale].newChat);
+      }
+    };
+    getLastMessage();
+  }, [tag, locale]);
+
+  return <Text style={styles.subtitle}>{lastMessage}</Text>;
 }
 
 const styles = StyleSheet.create({
@@ -148,19 +156,19 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
-    marginTop: 10
+    marginTop: 10,
   },
   nestedContactInfo: {
-    display: 'flex'
+    display: 'flex',
   },
   title: {
     fontSize: 20,
-    fontFamily: 'ZZZWebFont'
+    fontFamily: 'ZZZWebFont',
   },
   subtitle: {
     fontSize: 16,
     fontFamily: 'ZZZWebFont',
-    color: Colors.default.secondaryBackground
+    color: Colors.default.secondaryBackground,
   },
   mainText: {
     fontFamily: 'ZZZWebFont',
@@ -170,4 +178,4 @@ const styles = StyleSheet.create({
     height: 1,
     width: '80%',
   },
-})
+});
