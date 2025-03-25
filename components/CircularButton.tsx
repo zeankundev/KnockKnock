@@ -1,5 +1,5 @@
 import Colors from "@/constants/Colors";
-import { StyleSheet, TextInput, TextInputProps, TouchableOpacity, View } from "react-native";
+import { StyleSheet, TextInput, TextInputProps, TouchableOpacity, View, ViewStyle } from "react-native";
 import { SvgXml } from "react-native-svg";
 
 interface CircularButtonProps {
@@ -9,7 +9,7 @@ interface CircularButtonProps {
     isActive: boolean;
     width?: number;
     height?: number;
-    style?: StyleSheet;
+    style?: ViewStyle;
 }
 
 export default function CircularButton(props: CircularButtonProps) {

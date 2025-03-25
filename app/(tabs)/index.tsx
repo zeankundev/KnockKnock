@@ -169,7 +169,7 @@ const styles = StyleSheet.create({
   subtitle: {
     fontSize: 16,
     fontFamily: 'ZZZWebFont',
-    color: Colors.default.secondaryBackground,
+    color: Colors.default.tertiaryBackground,
   },
   mainText: {
     fontFamily: 'ZZZWebFont',

@@ -302,6 +302,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center'
   },
+  floatingBottomRight: {
+    position: 'absolute',
+    bottom: 90,
+    backgroundColor: Colors.default.secondaryBackground,
+    padding: 20,
+    borderRadius: 50,
+    zIndex: 100,
+    right: 20
+  },
   mainMessageView: {
     flex: 1,
     marginTop: 15
@@ -318,6 +327,7 @@ const styles = StyleSheet.create({
   sideButton: {
     marginLeft: 'auto', // This will push the button to the right
     display: 'flex',
+    flexDirection: 'row',
     alignSelf:'flex-start',
     borderRadius: 50
   },
