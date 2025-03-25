@@ -59,6 +59,18 @@ export default {
         getYourOwnBuild: 'napauta tästä saadaksesi oman version Knock Knockista',
         debugExtraInfo: 'Debug/extra info',
     },
+    id: {
+        home: 'Beranda',
+        newChat: 'Mulai obrolan sekarang...',
+        loading: 'Memuat, tunggu!',
+        searchForAnything: 'Cari apa pun (rusak)',
+        thisIsTheStart: 'Ini adalah awal percakapan Knock Knock Anda dengan',
+        warning: 'Respon AI mungkin tidak akurat atau salah',
+        sendAMessage: 'Kirim pesan',
+        about: 'gaya aplikasi kaya WA berorientasi hobi. belum siap produksi dulu, pokoknya ga untuk saat ini :)',
+        getYourOwnBuild: 'ketuk di sini untuk mendapatkan versi Knock Knock Anda sendiri',
+        debugExtraInfo: 'Info debug/ekstra',
+    },
     zh: {
         home: '家',
         newChat: '立即开始聊天...',

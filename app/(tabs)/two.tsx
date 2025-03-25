@@ -9,6 +9,7 @@ import * as Device from 'expo-device';
 import { SvgXml } from 'react-native-svg';
 import VectorGraphics from '@/constants/VectorGraphics';
 import { ExternalLink } from '@/components/ExternalLink';
+import { useStringifiedLocale } from '@/components/LocaleManager';
 
 export default function TabTwoScreen() {
   const [locale, setLocale] = useState<keyof typeof Locales>('en');
@@ -30,7 +31,7 @@ export default function TabTwoScreen() {
         style={{ width: 128, height: 128 }}
       />
       <Text style={styles.title}>Knock Knock</Text>
-      <Text style={styles.miniText}>{Locales[locale].about}{'\n'}</Text>
+      <Text style={styles.miniText}>{Locales[useStringifiedLocale()].about}{'\n'}</Text>
       <View style={styles.copyright}>
         <Text style={{fontFamily: 'ZZZWebFont'}}>made with ❤️ by</Text>
         <TouchableOpacity>
@@ -46,7 +47,7 @@ export default function TabTwoScreen() {
         <ExternalLink
           href='https://github.com/zeankundev/KnockKnock'
         >
-          <Text style={styles.miniText}>({Locales[locale].getYourOwnBuild})</Text>
+          <Text style={styles.miniText}>({Locales[useStringifiedLocale()].getYourOwnBuild})</Text>
         </ExternalLink>
       </TouchableOpacity>
       <View style={styles.separator} />
