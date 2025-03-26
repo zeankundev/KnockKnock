@@ -18,7 +18,7 @@ import { getLocales } from 'expo-localization';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import MessageBubble from '@/components/MessageBubble';
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage'
 import { useStringifiedLocale } from '@/components/LocaleManager';
 
 // Add these type definitions
@@ -130,7 +130,7 @@ export default function ModalScreen() {
 
       try {
         if (!genAI) throw new Error('AI not initialized');
-        const model = genAI.getGenerativeModel({ model: "learnlm-1.5-pro-experimental" });
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
         // Convert previous messages to conversation history format
         const conversationHistory = messages.map(msg => 
           msg.type === 'user' ? `user: ${msg.message}` : `you: ${msg.message}`
