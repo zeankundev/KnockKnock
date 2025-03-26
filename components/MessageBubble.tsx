@@ -91,6 +91,7 @@ const styles = StyleSheet.create({
         borderRadius: 50,
         backgroundColor: Colors.default.rightBubbleChat,
         paddingLeft: 7,
+        maxWidth: 300,
         paddingRight: 7
     },
     messageBubbleRightText: {
