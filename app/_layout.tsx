@@ -9,6 +9,7 @@ import 'react-native-reanimated';
 import { useColorScheme } from '@/components/useColorScheme';
 import { StatusBar, View } from 'react-native';
 import Colors from '@/constants/Colors';
+import { useStringifiedLocale } from '@/components/LocaleManager';
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -26,7 +27,7 @@ SplashScreen.preventAutoHideAsync();
 export default function RootLayout() {
   const [loaded, error] = useFonts({
     Menlo: require('../assets/fonts/Menlo_Regular.ttf'),
-    ZZZWebFont: require('../assets/fonts/en-us.ttf'),
+    ZZZWebFont: require(`../assets/fonts/en-en.ttf'`),
     ...FontAwesome.font,
   });
 

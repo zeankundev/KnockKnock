@@ -130,7 +130,7 @@ export default function ModalScreen() {
 
       try {
         if (!genAI) throw new Error('AI not initialized');
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
         // Convert previous messages to conversation history format
         const conversationHistory = messages.map(msg => 
           msg.type === 'user' ? `user: ${msg.message}` : `you: ${msg.message}`
