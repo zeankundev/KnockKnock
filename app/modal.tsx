@@ -14,8 +14,7 @@ import CircularButton from '@/components/CircularButton';
 // Add this at the top with other imports
 import { useEffect, useRef, useState } from 'react';
 import Locales from '@/constants/Locales';
-import { getLocales } from 'expo-localization';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import Toast from '@/components/Toast';
 import MessageBubble from '@/components/MessageBubble';
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import AsyncStorage from '@react-native-async-storage/async-storage'
@@ -48,6 +47,7 @@ export default function ModalScreen() {
   const [currentText, setCurrentText] = useState('');
   const [isTextValid, setIsTextValid] = useState(false);
   const [AISettings, setAISettings] = useState<GenerativeAISettings | null>(null);
+  const [showEmptyToast, setShowEmptyToast] = useState(false);
   const { generativeAITag } = useLocalSearchParams<{generativeAITag: string}>();
   const scrollViewRef = useRef<ScrollView>(null);
   const PROD_JSON_URL = process.env['EXPO_PUBLIC_CONTACT_INFO_JSON'];
@@ -190,6 +190,11 @@ export default function ModalScreen() {
       }
       scrollViewRef?.current?.scrollToEnd({animated: true});
     }
+    else {
+      setShowEmptyToast(true);
+      // Auto-hide toast after it's shown
+      setTimeout(() => setShowEmptyToast(false), 3000);
+    }
   };
   const clearChat = async () => {
     try {
@@ -209,6 +214,11 @@ export default function ModalScreen() {
 
   return (
     <View style={styles.container}>
+      {showEmptyToast && (
+        <Toast>
+          <Text style={{color: '#fff', fontFamily: 'ZZZWebFont'}}>Message cannot be empty!</Text>
+        </Toast>
+      )}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()}>
           <SvgXml xml={VectorGraphics.backButton} width={54} height={54} />
