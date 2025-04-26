@@ -106,5 +106,17 @@ export default {
         about: '취미 중심의 메시징 앱 스타일. 아직 제작 준비가 안 된 상태입니다 :)',
         getYourOwnBuild: '여기를 탭하여 자체 Knock Knock 빌드를 받으세요',
         debugExtraInfo: '디버그/추가 정보',
+    },
+    sv: {
+        home: 'Hem',
+        newChat: 'Börja chatta nu...',
+        loading: 'Laddar...',
+        searchForAnything: 'Sök efter vad som helst (trasig för tillfället)',
+        thisIsTheStart: 'Detta är början på din Knock Knock-konversation med',
+        warning: 'AI-svar kan vara felaktiga eller falska',
+        sendAMessage: 'Skicka ett meddelande',
+        about: 'hobbyinriktad meddelandeapp-stil. inte produktionsklar än, åtminstone för tillfället :)',
+        getYourOwnBuild: 'tryck här för att få din egen version av Knock Knock',
+        debugExtraInfo: 'Debug/extra info',
     }
 }
