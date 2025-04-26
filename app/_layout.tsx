@@ -26,7 +26,7 @@ SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   const [loaded, error] = useFonts({
-    Menlo: require('../assets/fonts/Menlo_Regular.ttf'),
+    mononoki: require('../assets/fonts/mononoki-Regular.ttf'),
     ZZZWebFont: require('../assets/fonts/en-en.ttf'),
     ...FontAwesome.font,
   });

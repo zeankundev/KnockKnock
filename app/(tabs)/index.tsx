@@ -7,7 +7,7 @@ import { Text, View } from '@/components/Themed';
 import Colors from '@/constants/Colors';
 import { LinearGradient } from 'react-native-linear-gradient';
 import TextField from '@/components/TextField';
-import AISettings from '@/components/config/AISettings';
+// import AISettings from '@/components/config/AISettings';
 import { useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getLocales } from 'expo-localization';
@@ -24,6 +24,7 @@ interface Contact {
 export default function TabOneScreen() {
   const [contacts, setContacts] = useState<Contact[] | null>(null);
   const [locale, setLocale] = useState<keyof typeof Locales>('en');
+  const [search, setSearch] = useState<string>('');
   const PROD_JSON_URL = process.env['EXPO_PUBLIC_CONTACT_INFO_JSON'];
   const HISTORY_FILE = 'history.json';
 
@@ -57,13 +58,27 @@ export default function TabOneScreen() {
     loadContacts();
   }, []);
 
+  useEffect(() => {
+    fetchContacts();
+  }, [search])
+
   const fetchContacts = async () => {
     setContacts(null);
     try {
       const response = await fetch(PROD_JSON_URL || '', { cache: 'no-cache' });
       if (!response.ok) throw new Error('Network response was not ok');
       const data = await response.json();
+      
+      if (search && search.trim() !== '') {
+      const searchTerm = search.toLowerCase();
+      const filteredData = data.filter((contact: Contact) => 
+        contact.name.toLowerCase().includes(searchTerm) || 
+        contact.tag.toLowerCase().includes(searchTerm)
+      );
+      setContacts(filteredData);
+      } else {
       setContacts(data);
+      }
     } catch (error) {
       console.error('💥 Error loading contacts:', error);
     }
@@ -73,7 +88,7 @@ export default function TabOneScreen() {
     <View style={styles.container}>
       <Text style={styles.title}>{Locales[useStringifiedLocale()].home}</Text>
       <View>
-        <TextField placeholder={Locales[useStringifiedLocale()].searchForAnything} />
+        <TextField placeholder={Locales[useStringifiedLocale()].searchForAnything} onChangeText={(query) => {setSearch(query)}} />
       </View>
       <ScrollView
         refreshControl={

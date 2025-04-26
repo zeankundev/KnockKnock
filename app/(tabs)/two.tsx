@@ -60,7 +60,7 @@ export default function TabTwoScreen() {
         Manufacturer: {Device.manufacturer}{'\n'}
         Model ID: {Device.modelId}{'\n'}
         Device year class: {Device.deviceYearClass}{'\n'}
-        OS name: {Platform.OS === 'android' ? 'Android' : 'iOS'}{'\n'}
+        OS name: {Platform.OS}{'\n'}
         Build fingerprint: {Device.osBuildFingerprint}{'\n'}
         OS version: {Device.osVersion}{'\n'}
       </Text>
@@ -86,7 +86,7 @@ const styles = StyleSheet.create({
     maxWidth: 300,
     fontSize: 16,
     textAlign: 'center',
-    fontFamily: 'Menlo'
+    fontFamily: 'mononoki'
   },
   separator: {
     marginVertical: 30,
